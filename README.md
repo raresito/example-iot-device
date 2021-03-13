@@ -6,7 +6,8 @@ Git clone this project in your machine.
 
 ### Prerequisites
 
-Build tested on Ubuntu Server
+Build tested on Ubuntu Server. Pistache doesn't support Windows, but you can use something like [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10) or a virtual machine with Linux.
+
 You will need to have a C++ compiler. I used g++ that came preinstalled. Check using `g++ -v`
 
 You will need to install the [Pistache](https://github.com/pistacheio/pistache) library.
