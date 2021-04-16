@@ -1,0 +1,66 @@
+{
+    "device-name": "Microwave App",
+    "device-type": "Microwave",
+    "buffers-count": 1,
+    "input-buffers":{
+        "1":{
+            "token-delimitators": "",
+            "protocol": "HTTP",
+            "prefix": "curl -XPOST 'http://127.0.0.1:8080/'",
+            "buffer-tokens":[
+            {
+                "name":"Microwave options",
+                "description":"",
+                "token-type":"string", 
+                "byte-size":10, 
+                "regex-rule": "[a-zA-Z]*", // Correct inputs will be: [settings]
+                "optional": false
+            },
+            {
+                "name":"Microwave option parameter key",
+                "description": "Parameter key for the setting chosen",
+                "token-type":"string",
+                "byte-size":10,
+                "regex-rule": "[a-zA-Z]*", // Correct inputs will be: [defrost]
+                "optional": false
+            },
+            {
+                "name":"Microwave option parameter value",
+                "description": "Parameter value for the setting chosen",
+                "token-type":"string",
+                "byte-size":10,
+                "regex-rule": "[a-zA-Z]*", // Correct inputs will be: [true, false]
+                "optional": false
+            }
+            ]
+        }
+    },
+    "output-buffers":{
+        "1":{
+            "token-delimitators": "",
+            "protocol": "HTTP",
+            "prefix": "curl -XGET 'http://127.0.0.1:8080/'",
+            "buffer-tokens":[
+            {
+                "name":"Microwave options",
+                "description":"",
+                "token-type":"string", 
+                "byte-size":10, 
+                "regex-rule": "[a-zA-Z]*", // Correct inputs will be: [ready, auth, settings]
+                "optional": false
+            },
+            {
+                "name":"Microwave options parameter",
+                "description": "Parameters for the setting chosen",
+                "token-type":"string",
+                "byte-size":10,
+                "regex-rule": "[a-zA-Z]*", // Correct inputs will be: [defrost]
+                "optional": true
+            }
+            ]
+        }
+    }
+}
+
+
+
