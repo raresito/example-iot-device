@@ -15,6 +15,8 @@
 #include <pistache/endpoint.h>
 #include <pistache/common.h>
 
+#include <mqtt/client.h>
+
 #include <signal.h>
 
 using namespace std;
@@ -42,7 +44,7 @@ namespace Generic {
 
 }
 
-// Definition of the MicrowaveEnpoint class 
+// Definition of the MicrowaveEnpoint class
 class MicrowaveEndpoint {
 public:
     explicit MicrowaveEndpoint(Address addr)
@@ -58,7 +60,7 @@ public:
         setupRoutes();
     }
 
-    // Server is started threaded.  
+    // Server is started threaded.
     void start() {
         httpEndpoint->setHandler(router.handler());
         httpEndpoint->serveThreaded();
@@ -73,14 +75,14 @@ private:
     void setupRoutes() {
         using namespace Rest;
         // Defining various endpoints
-        // Generally say that when http://localhost:9080/ready is called, the handleReady function should be called. 
+        // Generally say that when http://localhost:9080/ready is called, the handleReady function should be called.
         Routes::Get(router, "/ready", Routes::bind(&Generic::handleReady));
         Routes::Get(router, "/auth", Routes::bind(&MicrowaveEndpoint::doAuth, this));
         Routes::Post(router, "/settings/:settingName/:value", Routes::bind(&MicrowaveEndpoint::setSetting, this));
         Routes::Get(router, "/settings/:settingName/", Routes::bind(&MicrowaveEndpoint::getSetting, this));
     }
 
-    
+
     void doAuth(const Rest::Request& request, Http::ResponseWriter response) {
         // Function that prints cookies
         printCookies(request);
@@ -97,10 +99,10 @@ private:
         // try to cast it to some data structure. Here, I cast the settingName to string.
         auto settingName = request.param(":settingName").as<std::string>();
 
-        // This is a guard that prevents editing the same value by two concurent threads. 
+        // This is a guard that prevents editing the same value by two concurent threads.
         Guard guard(microwaveLock);
 
-        
+
         string val = "";
         if (request.hasParam(":value")) {
             auto value = request.param(":value");
@@ -195,7 +197,40 @@ private:
     Rest::Router router;
 };
 
+// Based on the example at https://www.eclipse.org/paho/index.php?page=clients/cpp/index.php
+void mqttExample() {
+    const std::string address = "localhost";
+    const std::string clientId = "microwave";
+
+    // Create a client
+    mqtt::client client(address, clientId);
+
+    mqtt::connect_options options;
+    options.set_keep_alive_interval(20);
+    options.set_clean_session(true);
+
+    try {
+        // Connect to the client
+        client.connect(options);
+
+        // Create a message
+        const std::string TOPIC = "microwave";
+        const std::string PAYLOAD = "Hello World!";
+        auto msg = mqtt::make_message(TOPIC, PAYLOAD);
+
+        // Publish it to the server
+        client.publish(msg);
+
+        // Disconnect
+        client.disconnect();
+    }
+    catch (const mqtt::exception& exc) {
+        std::cerr << exc.what() << " [" << exc.get_reason_code() << "]" << std::endl;
+    }
+}
+
 int main(int argc, char *argv[]) {
+    mqttExample();
 
     // This code is needed for gracefull shutdown of the server when no longer needed.
     sigset_t signals;
